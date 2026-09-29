@@ -1,0 +1,71 @@
+[gd_scene load_steps=22 format=3]
+
+[ext_resource type="Script" path="res://scenes/game/game.gd" id="1_game"]
+[ext_resource type="Script" path="res://scenes/game/shake_camera.gd" id="2_camera"]
+[ext_resource type="Script" path="res://scenes/game/arena.gd" id="3_arena"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="4_player"]
+[ext_resource type="Script" path="res://scenes/game/wave_spawner.gd" id="5_spawner"]
+[ext_resource type="Resource" path="res://data/enemies/bee.tres" id="6_bee"]
+[ext_resource type="Resource" path="res://data/enemies/firefly.tres" id="7_firefly"]
+[ext_resource type="Resource" path="res://data/enemies/skimmer.tres" id="15_skimmer"]
+[ext_resource type="Resource" path="res://data/enemies/sniper.tres" id="16_sniper"]
+[ext_resource type="Resource" path="res://data/enemies/bomber.tres" id="17_bomber"]
+[ext_resource type="Resource" path="res://data/enemies/carrier.tres" id="18_carrier"]
+[ext_resource type="Resource" path="res://data/enemies/hornet_queen.tres" id="19_boss"]
+[ext_resource type="Resource" path="res://data/shop/pole_category.tres" id="20_pole"]
+[ext_resource type="Script" path="res://scripts/resources/shop_category.gd" id="21_category"]
+[ext_resource type="Script" path="res://scripts/resources/enemy_data.gd" id="8_enemy_data"]
+[ext_resource type="Script" path="res://scenes/ui/crosshair.gd" id="9_crosshair"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="10_hud"]
+[ext_resource type="PackedScene" path="res://scenes/ui/upgrade_select.tscn" id="11_upgrades"]
+[ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="12_pause"]
+[ext_resource type="PackedScene" path="res://scenes/ui/game_over.tscn" id="13_over"]
+[ext_resource type="PackedScene" path="res://scenes/ui/shop.tscn" id="14_shop"]
+
+[node name="Game" type="Node2D"]
+script = ExtResource("1_game")
+
+[node name="Sky" type="ColorRect" parent="."]
+z_index = -10
+offset_left = -480.0
+offset_top = -200.0
+offset_right = 800.0
+offset_bottom = 260.0
+color = Color(0.196, 0.2, 0.325, 1)
+
+[node name="Darkness" type="CanvasModulate" parent="."]
+color = Color(0.56, 0.54, 0.72, 1)
+
+[node name="Camera" type="Camera2D" parent="."]
+position = Vector2(160, 65)
+script = ExtResource("2_camera")
+
+[node name="Arena" type="Node2D" parent="."]
+script = ExtResource("3_arena")
+
+[node name="Entities" type="Node2D" parent="."]
+
+[node name="Player" parent="Entities" instance=ExtResource("4_player")]
+position = Vector2(160, 140)
+
+[node name="Spawner" type="Node" parent="."]
+script = ExtResource("5_spawner")
+enemy_types = Array[ExtResource("8_enemy_data")]([ExtResource("6_bee"), ExtResource("7_firefly"), ExtResource("15_skimmer"), ExtResource("16_sniper"), ExtResource("17_bomber"), ExtResource("18_carrier")])
+boss = ExtResource("19_boss")
+
+[node name="Overlay" type="CanvasLayer" parent="."]
+follow_viewport_enabled = true
+
+[node name="Crosshair" type="Node2D" parent="Overlay"]
+script = ExtResource("9_crosshair")
+
+[node name="Hud" parent="." instance=ExtResource("10_hud")]
+
+[node name="UpgradeSelect" parent="." instance=ExtResource("11_upgrades")]
+
+[node name="PauseMenu" parent="." instance=ExtResource("12_pause")]
+
+[node name="GameOver" parent="." instance=ExtResource("13_over")]
+
+[node name="Shop" parent="." instance=ExtResource("14_shop")]
+categories = Array[ExtResource("21_category")]([ExtResource("20_pole")])

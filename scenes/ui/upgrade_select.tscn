@@ -1,0 +1,53 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scenes/ui/upgrade_select.gd" id="1_select"]
+[ext_resource type="Resource" path="res://data/upgrades/growth.tres" id="2_growth"]
+[ext_resource type="Resource" path="res://data/upgrades/resist.tres" id="3_resist"]
+[ext_resource type="Resource" path="res://data/upgrades/renew.tres" id="4_renew"]
+[ext_resource type="Resource" path="res://data/upgrades/impulse.tres" id="5_impulse"]
+[ext_resource type="Resource" path="res://data/upgrades/eyesight.tres" id="6_eyesight"]
+[ext_resource type="Resource" path="res://data/upgrades/resonance.tres" id="7_resonance"]
+[ext_resource type="Resource" path="res://data/upgrades/catalyst.tres" id="8_catalyst"]
+[ext_resource type="Script" path="res://scripts/resources/upgrade_data.gd" id="9_data"]
+
+[node name="UpgradeSelect" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1_select")
+upgrades = Array[ExtResource("9_data")]([ExtResource("2_growth"), ExtResource("3_resist"), ExtResource("4_renew"), ExtResource("5_impulse"), ExtResource("6_eyesight"), ExtResource("7_resonance"), ExtResource("8_catalyst")])
+
+[node name="Dim" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.1, 0.07, 0.12, 0.55)
+
+[node name="Title" type="Label" parent="."]
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 36.0
+offset_bottom = 54.0
+theme_override_colors/font_color = Color(0.984, 0.725, 0.329, 1)
+theme_override_colors/font_outline_color = Color(0.18, 0.133, 0.184, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 12
+text = "CHOOSE AN UPGRADE"
+horizontal_alignment = 1
+
+[node name="Cards" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="Hint" type="Label" parent="."]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -40.0
+offset_bottom = -26.0
+theme_override_colors/font_color = Color(0.78, 0.86, 0.82, 0.8)
+theme_override_font_sizes/font_size = 8
+text = "CLICK A CARD OR PRESS 1-4"
+horizontal_alignment = 1

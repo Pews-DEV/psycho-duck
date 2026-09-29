@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/enemy_data.gd" id="1_data"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/types/bomber_enemy.tscn" id="2_scene"]
+[ext_resource type="Texture2D" path="res://assets/sprites/enemies/Firefly.png" id="3_tex"]
+
+[resource]
+script = ExtResource("1_data")
+id = &"bomber"
+display_name = "Bomber"
+scene = ExtResource("2_scene")
+texture = ExtResource("3_tex")
+max_hp = 75.0
+speed = 35.0
+contact_damage = 3.0
+hit_radius = 7.0
+bullet_damage = 4.0
+shoot_cooldown = 3.6
+min_wave = 9
+spawn_weight = 0.15
+spawn_weight_per_wave = 0.015
+max_spawn_weight = 0.3
+soul_value = 2
+tint = Color(1.0, 0.55, 0.85, 1)
+glow_color = Color(0.95, 0.4, 0.8, 1)
+death_color = Color(0.94, 0.42, 0.78, 1)

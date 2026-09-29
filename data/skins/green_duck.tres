@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="SkinData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/skin_data.gd" id="1_skin"]
+[ext_resource type="Texture2D" path="res://assets/sprites/player/green_duck.png" id="2_tex"]
+
+[resource]
+script = ExtResource("1_skin")
+id = &"green_duck"
+display_name = "Green Duck"
+texture = ExtResource("2_tex")
+unlock_wave = 20

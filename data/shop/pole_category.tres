@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ShopCategory" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/shop_category.gd" id="1_category"]
+[ext_resource type="Script" path="res://scripts/resources/upgrade_data.gd" id="2_data"]
+[ext_resource type="Resource" path="res://data/upgrades/light_pole.tres" id="3_light_pole"]
+[ext_resource type="Resource" path="res://data/upgrades/pole_power.tres" id="4_pole_power"]
+[ext_resource type="Resource" path="res://data/upgrades/pole_overclock.tres" id="5_pole_overclock"]
+[ext_resource type="Resource" path="res://data/upgrades/pole_burst.tres" id="6_pole_burst"]
+[ext_resource type="Resource" path="res://data/upgrades/pole_reach.tres" id="7_pole_reach"]
+
+[resource]
+script = ExtResource("1_category")
+id = &"pole"
+display_name = "Light Pole"
+unlock_wave = 10
+offers = Array[ExtResource("2_data")]([ExtResource("3_light_pole"), ExtResource("4_pole_power"), ExtResource("5_pole_overclock"), ExtResource("6_pole_burst"), ExtResource("7_pole_reach")])
+featured = ExtResource("3_light_pole")

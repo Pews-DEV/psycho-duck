@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="UpgradeData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/upgrade_data.gd" id="1_data"]
+[ext_resource type="Texture2D" path="res://assets/ui/upgrades/Renew.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_data")
+id = &"renew"
+display_name = "Renew"
+icon = ExtResource("2_icon")
+description = "Heal to Max. HP"
+stat = 2
+values = Array[float]([0.0, 0.0, 0.0])
+has_rarity = false

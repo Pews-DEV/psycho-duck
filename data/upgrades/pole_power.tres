@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="UpgradeData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/upgrade_data.gd" id="1_data"]
+[ext_resource type="Texture2D" path="res://assets/ui/upgrades/PolePower.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_data")
+id = &"pole_power"
+display_name = "Pole Power"
+icon = ExtResource("2_icon")
+description = "Pole Damage +_"
+stat = 8
+values = Array[float]([6.0, 10.0, 15.0])
+has_rarity = true
+requires = &"pole_built"
+shop_price = 0
