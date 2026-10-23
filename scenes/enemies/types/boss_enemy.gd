@@ -10,7 +10,7 @@ enum Attack { RING, FAN, SUMMON, RAIL }
 
 ## Pontos onde ela para, relativos ao centro da tela.
 const ANCHORS: Array[Vector2] = [Vector2(-120, 20), Vector2(0, 10), Vector2(120, 20)]
-const RING_BULLETS := 12
+const RING_BULLETS := 10
 const FAN_BULLETS := 5
 const RAIL_SPEED_MULTIPLIER := 3.2
 const RAIL_COLOR := Color("b4f0ff")
@@ -53,7 +53,7 @@ func _behave(delta: float) -> void:
 
 
 func _loop() -> void:
-	await wait(1.5)
+	await wait(2.0)
 	while not is_dying:
 		var options := [Attack.RING, Attack.FAN, Attack.SUMMON, Attack.RAIL].filter(func(a: int) -> bool: return a != _last_attack)
 		var attack: int = options.pick_random()
@@ -112,7 +112,7 @@ func _rail() -> void:
 		await wait(0.3)
 		var aim: Vector2 = laser_target
 		laser_target = null
-		fire((aim - global_position).angle(), 1, 0.0, RAIL_SPEED_MULTIPLIER, 1.2, RAIL_COLOR, 2.5)
+		fire((aim - global_position).angle(), 1, 0.0, RAIL_SPEED_MULTIPLIER, 1.0, RAIL_COLOR, 2.5)
 		Sfx.play(&"sniper_shot", -2.0, 0.0, 0.8)
 		_anchor = _next_anchor()
 		global_position = _anchor

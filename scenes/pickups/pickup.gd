@@ -25,7 +25,9 @@ func _ready() -> void:
 		var sprite := Sprite2D.new()
 		sprite.texture = SOUL_TEXTURE
 		add_child(sprite)
-	add_child(Fx.make_light(SOUL_COLOR if kind == Kind.SOUL else HEAL_COLOR, 12.0, 0.7))
+	# Só a cura brilha (é rara); as almas são muitas e dispensam luz própria.
+	if kind == Kind.HEAL:
+		add_child(Fx.make_light(HEAL_COLOR, 12.0, 0.7))
 
 
 func _physics_process(delta: float) -> void:

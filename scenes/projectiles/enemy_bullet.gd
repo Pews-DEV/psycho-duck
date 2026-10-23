@@ -19,7 +19,7 @@ func _ready() -> void:
 		var circle := CircleShape2D.new()
 		circle.radius = radius
 		$Shape.shape = circle
-	add_child(Fx.make_light(color, 14.0, 0.6))
+	# Sem luz própria: em ondas altas são dezenas de tiros e cada luz custa um passe de desenho.
 
 
 func _physics_process(delta: float) -> void:

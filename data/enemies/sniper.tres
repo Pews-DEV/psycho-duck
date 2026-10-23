@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/resources/enemy_data.gd" id="1_data"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/types/sniper_enemy.tscn" id="2_scene"]
-[ext_resource type="Texture2D" path="res://assets/sprites/enemies/Bee.png" id="3_tex"]
+[ext_resource type="Texture2D" path="res://assets/sprites/enemies/Sniper.png" id="3_tex"]
 
 [resource]
 script = ExtResource("1_data")
@@ -13,7 +13,7 @@ texture = ExtResource("3_tex")
 max_hp = 60.0
 speed = 70.0
 contact_damage = 3.0
-hit_radius = 6.0
+hit_radius = 7.0
 bullet_damage = 4.0
 bullet_speed = 80.0
 shoot_cooldown = 2.2
@@ -22,5 +22,4 @@ spawn_weight = 0.15
 spawn_weight_per_wave = 0.015
 max_spawn_weight = 0.3
 soul_value = 2
-tint = Color(0.78, 0.55, 1.0, 1)
 death_color = Color(0.7, 0.9, 1.0, 1)

@@ -42,7 +42,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _build() -> void:
 	var column := UiStyle.centered_panel(self, 360)
-	column.add_theme_constant_override(&"separation", 4)
+	column.add_theme_constant_override(&"separation", 2)
 	column.add_child(UiStyle.label("CREDITS", 14, UiStyle.ACCENT))
 
 	var logo_row := HBoxContainer.new()
@@ -53,7 +53,7 @@ func _build() -> void:
 	logo.texture = LOGO
 	logo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	logo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	logo.custom_minimum_size = Vector2(72, 72)
+	logo.custom_minimum_size = Vector2(56, 56)
 	# O logo não é pixel art: filtro suave para reduzir sem serrilhar.
 	logo.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	logo_row.add_child(logo)
@@ -69,7 +69,6 @@ func _build() -> void:
 		value.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 		column.add_child(value)
 
-	column.add_child(UiStyle.label("THANK YOU FOR PLAYING", 8, UiStyle.MUTED))
 	_back = UiStyle.button("BACK")
 	_back.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_back.pressed.connect(close)

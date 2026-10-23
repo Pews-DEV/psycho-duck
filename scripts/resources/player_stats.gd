@@ -2,7 +2,7 @@ class_name PlayerStats
 extends Resource
 ## Stats do pato. O player duplica este resource no início de cada run.
 
-@export var max_hp := 30.0
+@export var max_hp := 35.0
 ## Redução de dano em %. Cada Resist multiplica o dano recebido (retorno decrescente).
 @export var defense := 0.0
 @export var max_defense := 60.0

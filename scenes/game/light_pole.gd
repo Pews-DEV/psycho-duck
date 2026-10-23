@@ -2,13 +2,14 @@ class_name LightPole
 extends Node2D
 ## Poste de luz comprado na loja: a cada tantos segundos dispara uma rajada de lasers
 ## nos inimigos mais próximos dentro do alcance. Começa fraco; a loja vende melhorias.
-## Desenho provisório (sem arte): poste, braço e lâmpada.
 
-const POLE_COLOR := Color("3e3546")
+const SPRITE := preload("res://assets/sprites/props/LightPole.png")
+## O poste do sprite fica em x = 9..10; a base embaixo, no chão.
+const SPRITE_OFFSET := Vector2(-10, -46)
 const LAMP_COLOR := Color("fbb954")
 const BEAM_COLOR := Color("fff4c2")
-const HEIGHT := 40.0
-const LAMP_OFFSET := Vector2(-4, -HEIGHT - 1)
+## Centro da lâmpada, de onde saem os lasers.
+const LAMP_OFFSET := Vector2(-6.5, -39.5)
 const BEAM_TIME := 0.12
 const LASER_GAP := 0.1
 
@@ -25,6 +26,12 @@ var _built := false
 
 
 func _ready() -> void:
+	var sprite := Sprite2D.new()
+	sprite.texture = SPRITE
+	sprite.centered = false
+	sprite.position = SPRITE_OFFSET
+	sprite.show_behind_parent = true
+	add_child(sprite)
 	var light := Fx.make_light(Color("ffe6b0"), 50.0, 0.9)
 	light.position = LAMP_OFFSET
 	add_child(light)
@@ -99,13 +106,9 @@ func _fire_burst() -> void:
 
 
 func _draw() -> void:
-	# Poste
-	draw_rect(Rect2(-4, -3, 8, 3), POLE_COLOR)
-	draw_rect(Rect2(-1, -HEIGHT, 2, HEIGHT), POLE_COLOR)
-	draw_rect(Rect2(-5, -HEIGHT - 1, 5, 2), POLE_COLOR)
-	# Lâmpada pisca quando dispara.
-	var firing := not _beams.is_empty()
-	draw_rect(Rect2(LAMP_OFFSET + Vector2(-2, 1), Vector2(4, 2)), Color.WHITE if firing else LAMP_COLOR)
+	# A lâmpada fica branca enquanto dispara.
+	if not _beams.is_empty():
+		draw_rect(Rect2(LAMP_OFFSET + Vector2(-2, 0), Vector2(4, 1)), Color.WHITE)
 	for beam in _beams:
 		var alpha: float = 1.0 - beam.age / BEAM_TIME
 		draw_line(beam.from, beam.to, Color(BEAM_COLOR, alpha), 1.5)

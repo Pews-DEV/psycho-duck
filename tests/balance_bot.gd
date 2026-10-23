@@ -47,6 +47,8 @@ func _start_run() -> void:
 		game.queue_free()
 		await get_tree().process_frame
 	GameState.owned_items.clear()
+	# Run "do zero": sem as melhorias permanentes do save de quem roda o bot.
+	GameState.meta_levels.clear()
 	finished_run = false
 	game = GAME_SCENE.instantiate()
 	get_tree().root.add_child(game)

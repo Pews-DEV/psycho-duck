@@ -12,7 +12,7 @@ signal boss_spawned(boss: Enemy)
 @export var boss: EnemyData
 ## Onda de chefe a cada tantas ondas; nela vêm menos inimigos comuns.
 @export var boss_every := 10
-@export_range(0.0, 1.0) var boss_wave_escort := 0.35
+@export_range(0.0, 1.0) var boss_wave_escort := 0.25
 
 @export_group("Elites")
 ## Elites (versão vermelha) começam nesta onda e ficam mais comuns até o teto.
@@ -33,7 +33,7 @@ signal boss_spawned(boss: Enemy)
 @export var hp_linear := 0.12
 @export var hp_quadratic := 0.006
 ## Dano: 1 + linear·(n-1) + quadrático·(n-1)². O quadrático mantém a pressão depois da onda 30.
-@export var damage_per_wave := 0.04
+@export var damage_per_wave := 0.035
 @export var damage_quadratic := 0.0008
 @export var speed_per_wave := 0.012
 @export var max_speed_multiplier := 1.4

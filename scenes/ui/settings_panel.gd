@@ -127,9 +127,10 @@ func _build() -> void:
 	_reset.custom_minimum_size = Vector2(160, 18)
 	_reset.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_reset.add_theme_font_size_override(&"font_size", 8)
-	_reset.add_theme_color_override(&"font_color", Color("e83b3b"))
 	_reset.pressed.connect(_confirm_reset)
 	rows.add_child(_reset)
+	# Depois do add_child: o PixelButton define a cor do texto no próprio _ready.
+	_reset.add_theme_color_override(&"font_color", Color("e83b3b"))
 
 	_back = PixelButton.new()
 	_back.text = "BACK"
