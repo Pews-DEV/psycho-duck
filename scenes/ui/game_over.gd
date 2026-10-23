@@ -18,7 +18,7 @@ func _ready() -> void:
 
 
 func open(wave: int, souls: int, is_record: bool) -> void:
-	stats_label.text = "WAVE %02d    BEST %02d\nSOULS +%d" % [wave, GameState.best_wave, souls]
+	stats_label.text = tr("WAVE %02d    BEST %02d\nSOULS +%d") % [wave, GameState.best_wave, souls]
 	record_label.visible = is_record
 	visible = true
 	get_tree().paused = true

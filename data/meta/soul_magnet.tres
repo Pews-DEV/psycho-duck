@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="MetaUpgrade" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/meta_upgrade.gd" id="1_meta"]
+[ext_resource type="Texture2D" path="res://assets/ui/upgrades/SoulMagnet.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_meta")
+id = &"soul_magnet"
+display_name = "Soul Magnet"
+description = "+_% Souls collected"
+icon = ExtResource("2_icon")
+effect = 4
+max_level = 5
+value_per_level = 10.0
+base_cost = 25
+cost_growth = 1.6

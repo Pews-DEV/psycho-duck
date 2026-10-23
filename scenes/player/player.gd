@@ -49,6 +49,7 @@ func _ready() -> void:
 	hp = stats.max_hp
 	for item in GameState.get_owned_items():
 		apply_upgrade(item, UpgradeData.Rarity.COMMON)
+	_apply_meta_bonuses()
 	sprite.texture = GameState.get_character().texture
 	GameState.dress(sprite)
 	sprite.material = Fx.flash_material()
@@ -231,6 +232,17 @@ func apply_upgrade(upgrade: UpgradeData, rarity: UpgradeData.Rarity) -> void:
 		UpgradeData.Stat.DAMAGE:
 			stats.projectile_damage += value
 	health_changed.emit(hp, stats.max_hp)
+
+
+## Melhorias permanentes da loja do menu.
+func _apply_meta_bonuses() -> void:
+	var extra_hp := GameState.meta_bonus(MetaUpgrade.Effect.MAX_HP)
+	stats.max_hp += extra_hp
+	hp += extra_hp
+	stats.projectile_damage += GameState.meta_bonus(MetaUpgrade.Effect.DAMAGE)
+	stats.crit_chance = minf(stats.crit_chance + GameState.meta_bonus(MetaUpgrade.Effect.CRIT_CHANCE), stats.max_crit_chance)
+	var defense := GameState.meta_bonus(MetaUpgrade.Effect.DEFENSE)
+	stats.defense = minf(100.0 - (100.0 - stats.defense) * (1.0 - defense / 100.0), stats.max_defense)
 
 
 func _die() -> void:

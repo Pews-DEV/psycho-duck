@@ -6,11 +6,16 @@ signal resumed
 signal quit_to_menu
 signal abandon
 
+var _confirming_abandon := false
+
 @onready var resume_button: PixelButton = $Resume
 @onready var settings_button: PixelButton = $Settings
 @onready var save_button: PixelButton = $SaveQuit
 @onready var abandon_button: PixelButton = $Abandon
 @onready var settings_panel: SettingsPanel = $SettingsPanel
+@onready var controls_button: PixelButton = $Controls
+@onready var controls_panel: ControlsPanel = $ControlsPanel
+@onready var web_hint: Label = $WebHint
 
 
 func _ready() -> void:
@@ -20,13 +25,23 @@ func _ready() -> void:
 	settings_button.pressed.connect(_open_settings)
 	save_button.pressed.connect(func() -> void: quit_to_menu.emit())
 	abandon_button.pressed.connect(_confirm_abandon)
+	settings_panel.allow_reset = false
 	settings_panel.closed.connect(func() -> void:
 		visible = true
 		settings_button.grab_focus())
+	controls_button.pressed.connect(func() -> void:
+		visible = false
+		controls_panel.open("BACK"))
+	controls_panel.closed.connect(func() -> void:
+		visible = true
+		controls_button.grab_focus())
+	# No navegador, ESC é usado para sair da tela cheia antes de chegar ao jogo.
+	web_hint.visible = OS.has_feature("web")
 
 
 func open() -> void:
 	visible = true
+	_confirming_abandon = false
 	abandon_button.text = "ABANDON RUN"
 	get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -53,7 +68,8 @@ func _open_settings() -> void:
 
 ## Abandonar pede um segundo clique, para não perder a run sem querer.
 func _confirm_abandon() -> void:
-	if abandon_button.text == "SURE?":
+	if _confirming_abandon:
 		abandon.emit()
 	else:
+		_confirming_abandon = true
 		abandon_button.text = "SURE?"

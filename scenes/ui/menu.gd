@@ -3,6 +3,7 @@ extends Control
 ## Skins bloqueadas aparecem como silhueta com a onda que as libera; o START fica apagado.
 
 const GAME_SCENE := "res://scenes/game/game.tscn"
+const MENU_SCENE := "res://scenes/ui/menu.tscn"
 ## Posição dos pés do pato dentro de World (que está em escala 2).
 const DUCK_FEET_Y := 71.0
 const DUCK_SCALE := 1.5
@@ -14,6 +15,7 @@ const LOCKED_TINT := Color(0.08, 0.06, 0.1, 0.9)
 var _time := 0.0
 ## Skin mostrada (pode estar bloqueada); a escolhida de fato fica no GameState.
 var _browse := 0
+var _saved_run := {}
 
 @onready var title: TextureRect = $Title
 @onready var duck: Sprite2D = $World/Duck
@@ -23,9 +25,15 @@ var _browse := 0
 @onready var start_button: TextureButton = $Start
 @onready var close_button: TextureButton = $Close
 @onready var info_label: Label = $Info
+@onready var version_label: Label = $Version
 @onready var continue_button: PixelButton = $Continue
+@onready var upgrades_button: PixelButton = $Upgrades
 @onready var options_button: PixelButton = $Options
+@onready var credits_button: PixelButton = $Credits
 @onready var settings_panel: SettingsPanel = $SettingsPanel
+@onready var meta_shop: MetaShop = $MetaShop
+@onready var controls_panel: ControlsPanel = $ControlsPanel
+@onready var credits_panel: CreditsPanel = $CreditsPanel
 
 
 func _ready() -> void:
@@ -39,17 +47,24 @@ func _ready() -> void:
 	start_button.focus_entered.connect(_pop_start.bind(1.08))
 	close_button.pressed.connect(get_tree().quit)
 	close_button.visible = not OS.has_feature("web")
-	info_label.text = "BEST WAVE %02d   SOULS %d   SKINS %d/%d" % [
-		GameState.best_wave, GameState.souls, GameState.unlocked_skin_count(), GameState.SKINS.size()]
-	_browse = GameState.selected_character
+	version_label.text = "v%s DEMO" % ProjectSettings.get_setting("application/config/version", "0.0.0")
+
 	options_button.pressed.connect(settings_panel.open)
-	var run := GameState.load_run() if GameState.has_saved_run() else {}
-	continue_button.visible = not run.is_empty()
-	if continue_button.visible:
-		continue_button.text = "CONTINUE W%02d" % int(run.get("wave", 1))
-		continue_button.pressed.connect(_continue_run.bind(int(run.get("skin", 0))))
+	upgrades_button.pressed.connect(meta_shop.open)
+	credits_button.pressed.connect(credits_panel.open)
+	settings_panel.language_changed.connect(_refresh_texts)
+	settings_panel.progress_reset.connect(get_tree().change_scene_to_file.bind(MENU_SCENE))
+	meta_shop.closed.connect(_refresh_texts)
+	controls_panel.closed.connect(_on_controls_closed)
+	for panel in [settings_panel, meta_shop, credits_panel]:
+		panel.closed.connect(start_button.grab_focus)
+
+	_saved_run = GameState.load_run() if GameState.has_saved_run() else {}
+	continue_button.visible = not _saved_run.is_empty()
+	continue_button.pressed.connect(_continue_run)
+	_browse = GameState.selected_character
 	GameState.dress(duck)
-	_refresh(false)
+	_refresh_texts()
 	start_button.grab_focus()
 
 
@@ -62,7 +77,7 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if settings_panel.visible:
+	if _panel_open():
 		return
 	if event.is_action_pressed(&"ui_left") or event.is_action_pressed(&"move_left"):
 		_change_character(-1)
@@ -71,6 +86,19 @@ func _unhandled_input(event: InputEvent) -> void:
 	else:
 		return
 	get_viewport().set_input_as_handled()
+
+
+func _panel_open() -> bool:
+	return settings_panel.visible or meta_shop.visible or controls_panel.visible or credits_panel.visible
+
+
+## Textos montados em código (mudam com o idioma e com as almas gastas na loja).
+func _refresh_texts() -> void:
+	info_label.text = tr("BEST WAVE %02d   SOULS %d   SKINS %d/%d") % [
+		GameState.best_wave, GameState.souls, GameState.unlocked_skin_count(), GameState.SKINS.size()]
+	if not _saved_run.is_empty():
+		continue_button.text = tr("CONTINUE W%02d") % int(_saved_run.get("wave", 1))
+	_refresh(false)
 
 
 func _change_character(step: int) -> void:
@@ -85,7 +113,7 @@ func _refresh(animate: bool) -> void:
 	var unlocked := GameState.is_skin_unlocked(_browse)
 	duck.texture = skin.texture
 	duck.modulate = Color.WHITE if unlocked else LOCKED_TINT
-	name_label.text = skin.display_name if unlocked else "LOCKED - CLEAR WAVE %d" % skin.unlock_wave
+	name_label.text = tr(skin.display_name) if unlocked else tr("LOCKED - CLEAR WAVE %d") % skin.unlock_wave
 	start_button.disabled = not unlocked
 	start_button.modulate = Color.WHITE if unlocked else Color(0.45, 0.42, 0.5)
 	if not animate:
@@ -102,17 +130,37 @@ func _pop_start(target: float) -> void:
 	create_tween().tween_property(start_button, "scale", Vector2(target, target), 0.08)
 
 
-## Nova run: descarta a run salva, se houver.
+## Nova run. Se houver run salva, pede confirmação antes de descartá-la.
 func _start() -> void:
 	if not GameState.is_skin_unlocked(_browse):
 		Sfx.play(&"deny", -4.0, 0.0)
 		return
+	if _saved_run.is_empty():
+		_begin_new_run()
+		return
+	var dialog := ConfirmDialog.ask(self, tr("START A NEW RUN?"),
+		tr("YOUR SAVED RUN (WAVE %02d) WILL BE LOST.") % int(_saved_run.get("wave", 1)), "NEW RUN")
+	dialog.confirmed.connect(_begin_new_run)
+	dialog.cancelled.connect(start_button.grab_focus)
+
+
+func _begin_new_run() -> void:
 	GameState.resume_requested = false
+	# Primeira run: mostra os controles antes de jogar.
+	if not GameState.seen_controls:
+		controls_panel.open("PLAY")
+		return
 	_go_to_game()
 
 
-func _continue_run(skin: int) -> void:
-	GameState.selected_character = skin
+func _on_controls_closed() -> void:
+	if not GameState.seen_controls:
+		GameState.mark_controls_seen()
+		_go_to_game()
+
+
+func _continue_run() -> void:
+	GameState.selected_character = int(_saved_run.get("skin", 0))
 	GameState.resume_requested = true
 	_go_to_game()
 

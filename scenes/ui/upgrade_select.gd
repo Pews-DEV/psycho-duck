@@ -21,7 +21,7 @@ func _ready() -> void:
 func open(wave: int) -> void:
 	for child in cards_root.get_children():
 		child.queue_free()
-	title.text = "WAVE %02d - CHOOSE AN UPGRADE" % wave
+	title.text = tr("WAVE %02d - CHOOSE AN UPGRADE") % wave
 
 	var pool := upgrades.duplicate()
 	pool.shuffle()

@@ -1,5 +1,6 @@
 extends Node
-## Estado persistente entre cenas: skin escolhida, almas, recorde, skins e itens liberados.
+## Estado persistente entre cenas: skin escolhida, almas, recorde, skins e itens liberados,
+## melhorias permanentes e marcos da demo.
 
 const SAVE_PATH := "user://save.json"
 ## Checkpoint da run em andamento (gravado no início de cada onda).
@@ -18,12 +19,28 @@ const PERMANENT_ITEMS: Array[UpgradeData] = [
 	preload("res://data/items/top_hat.tres"),
 ]
 
+## Loja permanente do menu, na ordem em que aparece.
+const META_UPGRADES: Array[MetaUpgrade] = [
+	preload("res://data/meta/vitality.tres"),
+	preload("res://data/meta/firepower.tres"),
+	preload("res://data/meta/sharp_eye.tres"),
+	preload("res://data/meta/thick_feathers.tres"),
+	preload("res://data/meta/soul_magnet.tres"),
+	preload("res://data/meta/second_wind.tres"),
+]
+
 var selected_character := 0
 var souls := 0
 var best_wave := 0
 ## Maior onda já vencida em qualquer run: libera as skins.
 var max_wave_cleared := 0
 var owned_items: Array[StringName] = []
+## Nível de cada melhoria permanente, por id.
+var meta_levels := {}
+## A tela de controles aparece só antes da primeira run.
+var seen_controls := false
+## Venceu a última onda da demo ao menos uma vez.
+var demo_completed := false
 ## Falso nos testes automatizados, para não mexer no save de verdade.
 var persist := true
 ## O menu marca isto ao clicar em CONTINUE; a partida lê e continua do checkpoint.
@@ -118,6 +135,56 @@ func register_run(wave_reached: int, souls_collected: int) -> bool:
 	return is_record
 
 
+# --- Loja permanente ------------------------------------------------------------
+
+func meta_level(upgrade: MetaUpgrade) -> int:
+	return int(meta_levels.get(String(upgrade.id), 0))
+
+
+## Soma dos bônus comprados de um efeito (ex.: +6 de vida máxima).
+func meta_bonus(effect: MetaUpgrade.Effect) -> float:
+	var total := 0.0
+	for upgrade in META_UPGRADES:
+		if upgrade.effect == effect:
+			total += upgrade.value_per_level * meta_level(upgrade)
+	return total
+
+
+## Compra o próximo nível; retorna false se não tiver almas ou já estiver no máximo.
+func buy_meta(upgrade: MetaUpgrade) -> bool:
+	var level := meta_level(upgrade)
+	if level >= upgrade.max_level or souls < upgrade.cost_for(level):
+		return false
+	souls -= upgrade.cost_for(level)
+	meta_levels[String(upgrade.id)] = level + 1
+	save_game()
+	return true
+
+
+func mark_controls_seen() -> void:
+	seen_controls = true
+	save_game()
+
+
+func mark_demo_completed() -> void:
+	demo_completed = true
+	save_game()
+
+
+## Apaga todo o progresso: skins, recordes, almas, itens, melhorias e a run salva.
+func reset_progress() -> void:
+	selected_character = 0
+	souls = 0
+	best_wave = 0
+	max_wave_cleared = 0
+	owned_items.clear()
+	meta_levels.clear()
+	seen_controls = false
+	demo_completed = false
+	clear_run()
+	save_game()
+
+
 # --- Run salva ---------------------------------------------------------------
 
 func save_run(run: Dictionary) -> void:
@@ -156,6 +223,9 @@ func save_game() -> void:
 		"best_wave": best_wave,
 		"max_wave_cleared": max_wave_cleared,
 		"owned_items": owned_items.map(func(id: StringName) -> String: return String(id)),
+		"meta_levels": meta_levels,
+		"seen_controls": seen_controls,
+		"demo_completed": demo_completed,
 	}))
 
 
@@ -174,6 +244,9 @@ func load_game() -> void:
 	owned_items.clear()
 	for id in data.get("owned_items", []):
 		owned_items.append(StringName(id))
+	meta_levels = data.get("meta_levels", {})
+	seen_controls = bool(data.get("seen_controls", false))
+	demo_completed = bool(data.get("demo_completed", false))
 
 
 func _register_inputs() -> void:

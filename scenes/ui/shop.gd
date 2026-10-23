@@ -61,11 +61,11 @@ func open(current_souls: int, wave: int, shop_flags := {}) -> void:
 	flags = shop_flags
 	_price_multiplier = 1.0 + maxf(floorf(wave / 5.0) - 1.0, 0.0) * PRICE_GROWTH
 	_reroll_cost = REROLL_BASE_COST
-	subtitle.text = "WAVE %02d CLEARED - SPEND YOUR SOULS" % wave
+	subtitle.text = tr("WAVE %02d CLEARED - SPEND YOUR SOULS") % wave
 	_roll_offers()
 	var featured := _featured_offers()
 	if not featured.is_empty():
-		subtitle.text = "NEW IN THE SHOP: %s" % ", ".join(featured.map(func(u: UpgradeData) -> String: return u.display_name.to_upper()))
+		subtitle.text = tr("NEW IN THE SHOP: %s") % ", ".join(featured.map(func(u: UpgradeData) -> String: return tr(u.display_name).to_upper()))
 	_refresh()
 	visible = true
 	get_tree().paused = true
@@ -263,7 +263,7 @@ func _refresh() -> void:
 			continue
 		var price: Label = _slot_nodes[i].get_node("PriceTag/Price")
 		price.add_theme_color_override(&"font_color", PRICE_COLOR if souls >= offer.price else EXPENSIVE_COLOR)
-	reroll_button.text = "REROLL %d" % _reroll_cost
+	reroll_button.text = tr("REROLL %d") % _reroll_cost
 	reroll_button.modulate = Color.WHITE if souls >= _reroll_cost else Color(1, 1, 1, 0.5)
 
 
@@ -285,7 +285,7 @@ func _draw_empty_slot(empty: Control) -> void:
 		empty.draw_rect(Rect2(rect.position.x, y, 2, 5), color)
 		empty.draw_rect(Rect2(rect.end.x - 2, y, 2, 5), color)
 	var font := empty.get_theme_default_font()
-	empty.draw_string(font, Vector2(0, empty.size.y / 2.0 + 4), "SOLD", HORIZONTAL_ALIGNMENT_CENTER, empty.size.x, 10, color)
+	empty.draw_string(font, Vector2(0, empty.size.y / 2.0 + 4), tr("SOLD"), HORIZONTAL_ALIGNMENT_CENTER, empty.size.x, 10, color)
 
 
 ## Interior da casinha: tábuas na parede e um balcão embaixo.

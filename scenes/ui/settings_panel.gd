@@ -3,6 +3,13 @@ extends CanvasLayer
 ## Painel de configurações (usado no menu e na pausa). Salva ao fechar.
 
 signal closed
+## O idioma mudou: telas com texto montado em código devem se redesenhar.
+signal language_changed
+## Apagou todo o progresso (o menu recarrega).
+signal progress_reset
+
+## Nomes dos idiomas, na ordem de Settings.LANGUAGES.
+const LANGUAGE_NAMES := ["ENGLISH", "PORTUGUÊS"]
 
 const INK := Color("2e222f")
 const BORDER := Color("fbf5ef")
@@ -15,6 +22,10 @@ var _fullscreen: CheckBox
 var _shake: CheckBox
 var _numbers: CheckBox
 var _back: PixelButton
+var _language: PixelButton
+var _reset: PixelButton
+## Apagar progresso só faz sentido no menu, não no meio de uma run.
+var allow_reset := true
 
 
 func _ready() -> void:
@@ -31,6 +42,8 @@ func open() -> void:
 	_fullscreen.button_pressed = Settings.fullscreen
 	_shake.button_pressed = Settings.screen_shake
 	_numbers.button_pressed = Settings.damage_numbers
+	_update_language_button()
+	_reset.visible = allow_reset
 	visible = true
 	_back.grab_focus()
 
@@ -72,7 +85,7 @@ func _build() -> void:
 	center.add_child(panel)
 
 	var rows := VBoxContainer.new()
-	rows.add_theme_constant_override(&"separation", 6)
+	rows.add_theme_constant_override(&"separation", 4)
 	panel.add_child(rows)
 
 	var title := Label.new()
@@ -98,6 +111,26 @@ func _build() -> void:
 	_shake = _check_row(rows, "SCREEN SHAKE", func(on: bool) -> void: Settings.screen_shake = on)
 	_numbers = _check_row(rows, "DAMAGE NUMBERS", func(on: bool) -> void: Settings.damage_numbers = on)
 
+	var language_row := HBoxContainer.new()
+	rows.add_child(language_row)
+	language_row.add_child(_label("LANGUAGE"))
+	_language = PixelButton.new()
+	_language.custom_minimum_size = Vector2(120, 18)
+	_language.add_theme_font_size_override(&"font_size", 8)
+	# O nome de cada idioma aparece sempre na própria língua.
+	_language.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+	_language.pressed.connect(_next_language)
+	language_row.add_child(_language)
+
+	_reset = PixelButton.new()
+	_reset.text = "RESET PROGRESS"
+	_reset.custom_minimum_size = Vector2(160, 18)
+	_reset.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_reset.add_theme_font_size_override(&"font_size", 8)
+	_reset.add_theme_color_override(&"font_color", Color("e83b3b"))
+	_reset.pressed.connect(_confirm_reset)
+	rows.add_child(_reset)
+
 	_back = PixelButton.new()
 	_back.text = "BACK"
 	_back.custom_minimum_size = Vector2(120, 24)
@@ -105,6 +138,27 @@ func _build() -> void:
 	_back.add_theme_font_size_override(&"font_size", 10)
 	_back.pressed.connect(close)
 	rows.add_child(_back)
+
+
+func _next_language() -> void:
+	var index := (Settings.LANGUAGES.find(Settings.language) + 1) % Settings.LANGUAGES.size()
+	Settings.language = Settings.LANGUAGES[index]
+	Settings.apply()
+	_update_language_button()
+	language_changed.emit()
+
+
+func _update_language_button() -> void:
+	_language.text = LANGUAGE_NAMES[maxi(Settings.LANGUAGES.find(Settings.language), 0)]
+
+
+func _confirm_reset() -> void:
+	var dialog := ConfirmDialog.ask(self, tr("ERASE ALL PROGRESS?"),
+		tr("SKINS, RECORDS, SOULS, UPGRADES AND THE SAVED RUN WILL BE DELETED."), "ERASE")
+	dialog.confirmed.connect(func() -> void:
+		GameState.reset_progress()
+		close()
+		progress_reset.emit())
 
 
 func _slider_row(parent: Control, text: String, on_change: Callable) -> HSlider:

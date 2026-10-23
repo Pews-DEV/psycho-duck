@@ -79,7 +79,7 @@ func _draw_indicators() -> void:
 
 
 func show_boss(boss: Enemy) -> void:
-	boss_name.text = boss.data.display_name.to_upper()
+	boss_name.text = tr(boss.data.display_name).to_upper()
 	_boss_ratio = 1.0
 	boss_name.visible = true
 	boss_bar.visible = true

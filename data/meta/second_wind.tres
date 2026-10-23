@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="MetaUpgrade" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/meta_upgrade.gd" id="1_meta"]
+[ext_resource type="Texture2D" path="res://assets/ui/upgrades/SecondWind.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_meta")
+id = &"second_wind"
+display_name = "Second Wind"
+description = "Heal +_% more after each wave"
+icon = ExtResource("2_icon")
+effect = 5
+max_level = 4
+value_per_level = 5.0
+base_cost = 25
+cost_growth = 1.6

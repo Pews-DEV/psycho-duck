@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://scenes/game/game.gd" id="1_game"]
 [ext_resource type="Script" path="res://scenes/game/shake_camera.gd" id="2_camera"]
@@ -21,6 +21,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="12_pause"]
 [ext_resource type="PackedScene" path="res://scenes/ui/game_over.tscn" id="13_over"]
 [ext_resource type="PackedScene" path="res://scenes/ui/shop.tscn" id="14_shop"]
+[ext_resource type="Script" path="res://scenes/ui/demo_end_panel.gd" id="22_demo_end"]
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_game")
@@ -69,3 +70,6 @@ script = ExtResource("9_crosshair")
 
 [node name="Shop" parent="." instance=ExtResource("14_shop")]
 categories = Array[ExtResource("21_category")]([ExtResource("20_pole")])
+
+[node name="DemoEnd" type="CanvasLayer" parent="."]
+script = ExtResource("22_demo_end")

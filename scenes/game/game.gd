@@ -11,12 +11,16 @@ const HOUSE_DOOR_X := 183.0
 const EXPAND_EVERY := 10
 ## Onde o poste de luz é construído: à esquerda da casinha, a uma certa distância.
 const POLE_X := Arena.CENTER_X - 110.0
+## A demo termina ao vencer esta onda (dá para seguir no modo infinito).
+const DEMO_FINAL_WAVE := 20
 ## Cura ao limpar uma onda, em % da vida máxima.
 const WAVE_CLEAR_HEAL := 15.0
 
 var souls_this_run := 0
 
 var pole: LightPole
+## Frações de alma do bônus do Ímã de Almas, acumuladas até virar 1.
+var _soul_fraction := 0.0
 
 var _pending_wave := 1
 var _run_over := false
@@ -31,6 +35,7 @@ var _run_over := false
 @onready var pause_menu: CanvasLayer = $PauseMenu
 @onready var game_over: CanvasLayer = $GameOver
 @onready var shop: CanvasLayer = $Shop
+@onready var demo_end: DemoEndPanel = $DemoEnd
 
 
 func _ready() -> void:
@@ -49,6 +54,7 @@ func _ready() -> void:
 	player.died.connect(_on_player_died)
 	spawner.wave_cleared.connect(_on_wave_cleared)
 	spawner.boss_spawned.connect(hud.show_boss)
+	spawner.boss_spawned.connect(_on_boss_spawned)
 	upgrade_select.upgrade_chosen.connect(_on_upgrade_chosen)
 	pause_menu.quit_to_menu.connect(_go_to_menu)
 	pause_menu.abandon.connect(_abandon_run)
@@ -84,7 +90,7 @@ func _begin_wave(wave: int) -> void:
 
 func _on_upgrade_chosen(upgrade: UpgradeData, rarity: UpgradeData.Rarity) -> void:
 	player.apply_upgrade(upgrade, rarity)
-	hud.show_banner("BOSS WAVE" if spawner.is_boss_wave(_pending_wave) else "WAVE %d" % _pending_wave)
+	hud.show_banner(tr("BOSS WAVE") if spawner.is_boss_wave(_pending_wave) else tr("WAVE %d") % _pending_wave)
 	Sfx.play(&"wave_start", -4.0, 0.0)
 	spawner.start_wave(_pending_wave)
 
@@ -94,16 +100,24 @@ func _on_wave_cleared(wave: int) -> void:
 		return
 	var new_skins := GameState.register_wave_cleared(wave)
 	if new_skins.is_empty():
-		hud.show_banner("WAVE CLEAR")
+		hud.show_banner(tr("WAVE CLEAR"))
 		Sfx.play(&"wave_clear", -3.0, 0.0)
 	else:
-		hud.show_banner("NEW SKIN: %s!" % new_skins[0].display_name.to_upper())
+		hud.show_banner(tr("NEW SKIN: %s!") % tr(new_skins[0].display_name).to_upper())
 		Sfx.play(&"skin_unlock", -2.0, 0.0)
-	player.heal(player.stats.max_hp * WAVE_CLEAR_HEAL / 100.0)
+	var heal_percent := WAVE_CLEAR_HEAL + GameState.meta_bonus(MetaUpgrade.Effect.WAVE_HEAL)
+	player.heal(player.stats.max_hp * heal_percent / 100.0)
 	await get_tree().create_timer(1.8, false).timeout
 	await _wait_for_pickups()
 	if _run_over:
 		return
+	if wave == DEMO_FINAL_WAVE:
+		GameState.mark_demo_completed()
+		demo_end.open()
+		var keep_going: bool = await demo_end.chosen
+		if not keep_going:
+			_finish_run_at_menu(wave)
+			return
 	if wave % EXPAND_EVERY == 0 and arena.can_expand():
 		await _expand_arena()
 		if _run_over:
@@ -124,7 +138,7 @@ func _wait_for_pickups() -> void:
 
 
 func _expand_arena() -> void:
-	hud.show_banner("THE ARENA GROWS!")
+	hud.show_banner(tr("THE ARENA GROWS!"))
 	Fx.shake(get_tree(), 5.0)
 	Sfx.play(&"arena_grow", 0.0, 0.0)
 	await arena.expand()
@@ -132,7 +146,7 @@ func _expand_arena() -> void:
 
 ## O pato anda até a porta, entra na casinha e a loja abre; ao sair, volta a jogar.
 func _visit_shop(wave: int) -> void:
-	hud.show_banner("SHOP TIME")
+	hud.show_banner(tr("SHOP TIME"))
 	player.walk_to(HOUSE_DOOR_X)
 	await player.arrived
 	Sfx.play(&"door", -2.0, 0.0)
@@ -178,17 +192,34 @@ func _build_pole() -> void:
 
 
 func _on_soul_collected(amount: int) -> void:
-	souls_this_run += amount
+	_soul_fraction += amount * (1.0 + GameState.meta_bonus(MetaUpgrade.Effect.SOUL_GAIN) / 100.0)
+	var whole := floori(_soul_fraction)
+	_soul_fraction -= whole
+	souls_this_run += whole
 	hud.set_souls(souls_this_run)
 
 
 func _on_player_died() -> void:
 	_run_over = true
+	Music.set_boss_mode(false)
 	GameState.clear_run()
 	await get_tree().create_timer(1.4).timeout
 	Sfx.play(&"game_over", 0.0, 0.0)
 	var is_record := GameState.register_run(spawner.wave, souls_this_run)
 	game_over.open(spawner.wave, souls_this_run, is_record)
+
+
+func _on_boss_spawned(boss: Enemy) -> void:
+	Music.set_boss_mode(true)
+	boss.died.connect(func(_boss: Enemy) -> void: Music.set_boss_mode(false))
+
+
+## Venceu a demo e escolheu voltar ao menu: guarda almas e recorde como fim de run.
+func _finish_run_at_menu(wave: int) -> void:
+	_run_over = true
+	GameState.register_run(wave, souls_this_run)
+	GameState.clear_run()
+	_go_to_menu()
 
 
 ## Desiste da run: conta como fim de run (almas e recorde) e apaga o checkpoint.
@@ -235,11 +266,13 @@ func _restore_run(run: Dictionary) -> int:
 
 
 func _restart() -> void:
+	Music.set_boss_mode(false)
 	get_tree().paused = false
 	get_tree().reload_current_scene()
 
 
 func _go_to_menu() -> void:
+	Music.set_boss_mode(false)
 	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	get_tree().change_scene_to_file(MENU_SCENE)

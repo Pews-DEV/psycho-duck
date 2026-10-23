@@ -44,11 +44,12 @@ func value_for(rarity: Rarity) -> float:
 
 
 func describe(rarity: Rarity) -> String:
+	var template := TranslationServer.translate(description)
 	if not has_rarity:
-		return description
+		return template
 	var v := value_for(rarity)
 	var text := str(int(v)) if is_equal_approx(v, roundf(v)) else str(v)
-	return description.replace("_", text)
+	return template.replace("_", text)
 
 
 ## Pesos [comum, raro, épico]: começa em 72/23/5 e melhora até 50/35/15.
