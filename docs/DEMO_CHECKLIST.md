@@ -202,6 +202,26 @@ Se A, qual link:
 
 ---
 
+## Andamento (23/10/2026)
+
+| Item | Estado |
+|---|---|
+| 1 Publicação | Presets Web (itch.io, sem threads) e Windows prontos; builds testados (web inicia no Chrome; exe roda) |
+| 2 Fim da demo | Tela de agradecimento ao vencer a onda 20, com opção de seguir no infinito |
+| 3 Idioma | Inglês e português com seletor; detecta o idioma do sistema na primeira vez |
+| 4 Arte | Skimmer, Sniper, Bomber, Carrier, Drone, Hornet Queen, poste de luz e ícone desenhados no estilo dos originais |
+| 5 Skins | Mantidas (ondas 10 e 20) |
+| 6 Loja permanente | 6 melhorias por níveis no menu (MELHORIAS), pagas com o banco de almas |
+| 7 Controles | Tela "Como jogar" antes da primeira run e na pausa |
+| 9 Música | Faixa mais rápida e mais grave durante o chefe |
+| 11 Dificuldade | Mais fácil: 35 de vida, rainha da onda 10 mais fraca, dano crescendo mais devagar. Bot (jogador bom, 9 runs do zero): todas passam da onda 10, mediana na 19, 4 de 9 vencem a demo |
+| 12 Créditos | Tela com logo da Briba Studio, fonte (OFL) e Godot (MIT) |
+| 13 Versão | 0.3.0 Demo no menu, no exe e no projeto |
+| 15 Confirmação | Ao começar nova run com outra salva; apagar progresso nas configurações |
+| T2 Desempenho | Sem luz por tiro e por alma |
+| T5 Abertura | Logo da Briba Studio ao abrir o jogo |
+| T10 GDD | Atualizado |
+
 ## Parte 2 — O que eu faço sem precisar de decisão
 
 | # | Tarefa | Por quê |

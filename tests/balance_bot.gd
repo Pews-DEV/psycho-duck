@@ -111,6 +111,10 @@ func _process(delta: float) -> void:
 	if game.shop.visible:
 		_shop()
 		return
+	# Fim da demo (onda 20): segue no modo infinito para medir as ondas seguintes.
+	if game.demo_end.visible:
+		game.demo_end._continue.pressed.emit()
+		return
 	if game.spawner.wave >= MAX_WAVE and not game.player.is_dead and restart_at < 0.0:
 		_log_wave(game.spawner.wave, false)
 		game.player.died.disconnect(_on_died)
