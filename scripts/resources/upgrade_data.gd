@@ -10,9 +10,7 @@ enum Stat {
 enum Rarity { COMMON, RARE, EPIC }
 
 const RARITY_NAMES := ["COMMON", "RARE", "EPIC"]
-const RARITY_COLORS := [Color("f2e6d0"), Color("6ec4ff"), Color("d58cff")]
 const PERMANENT_NAME := "PERMANENT"
-const PERMANENT_COLOR := Color("fbb954")
 
 @export var id: StringName
 @export var display_name := ""

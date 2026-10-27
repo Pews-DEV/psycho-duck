@@ -40,7 +40,7 @@ static func damage_number(parent: Node, pos: Vector2, amount: float, crit: bool)
 	var label := Label.new()
 	label.text = str(roundi(amount)) + ("!" if crit else "")
 	var settings := LabelSettings.new()
-	settings.font_size = 10 if crit else 8
+	settings.font_size = 8
 	settings.font_color = CRIT_COLOR if crit else DAMAGE_COLOR
 	settings.outline_size = 3
 	settings.outline_color = Color("2e222f")

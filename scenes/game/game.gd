@@ -77,20 +77,25 @@ func _ready() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(&"pause") and not _run_over and not upgrade_select.visible and not shop.visible:
 		get_viewport().set_input_as_handled()
-		pause_menu.open()
+		pause_menu.open({"wave": _pending_wave, "souls": souls_this_run, "hp": player.hp,
+			"stats": player.stats, "pole": pole})
 
 
 ## Cada onda começa com a escolha de um upgrade, como na 0.2.0.
 func _begin_wave(wave: int) -> void:
 	_pending_wave = wave
-	hud.set_wave(wave)
+	var shop_wave := ceili(wave / float(SHOP_EVERY)) * SHOP_EVERY
+	hud.set_wave(wave, spawner.is_boss_wave(wave), shop_wave)
 	GameState.save_run(_snapshot(wave))
 	upgrade_select.open(wave)
 
 
 func _on_upgrade_chosen(upgrade: UpgradeData, rarity: UpgradeData.Rarity) -> void:
 	player.apply_upgrade(upgrade, rarity)
-	hud.show_banner(tr("BOSS WAVE") if spawner.is_boss_wave(_pending_wave) else tr("WAVE %d") % _pending_wave)
+	if spawner.is_boss_wave(_pending_wave):
+		hud.show_banner(tr("BOSS WAVE"), UiStyle.DANGER)
+	else:
+		hud.show_banner(tr("WAVE %d") % _pending_wave)
 	Sfx.play(&"wave_start", -4.0, 0.0)
 	spawner.start_wave(_pending_wave)
 
@@ -189,6 +194,7 @@ func _build_pole() -> void:
 	add_child(pole)
 	# Atrás do pato e dos inimigos.
 	move_child(pole, entities.get_index())
+	hud.set_pole(pole)
 
 
 func _on_soul_collected(amount: int) -> void:

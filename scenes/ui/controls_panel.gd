@@ -1,19 +1,20 @@
 class_name ControlsPanel
 extends CanvasLayer
-## Como jogar: lista de controles. Aparece antes da primeira run e pela pausa.
+## Como jogar: teclas desenhadas e a ação de cada uma. Aparece antes da primeira run e pela pausa.
 
 signal closed
 
-## [tecla, ação]: as duas colunas são chaves de tradução.
+## [teclas, ação]. Teclas com nome ("SPACE", "MOUSE") e a ação são chaves de tradução.
 const ROWS := [
-	["A / D", "MOVE"],
-	["W / SPACE", "JUMP"],
-	["S", "DROP FROM PLATFORM"],
-	["MOUSE", "AIM"],
-	["LEFT CLICK", "SHOOT (HOLD)"],
-	["1 - 4", "PICK A CARD"],
-	["ESC / P", "PAUSE"],
+	[["A", "D"], "MOVE"],
+	[["W", "SPACE"], "JUMP"],
+	[["S"], "DROP FROM PLATFORM"],
+	[["MOUSE"], "AIM"],
+	[["LEFT CLICK"], "SHOOT (HOLD)"],
+	[["1", "2", "3", "4"], "PICK A CARD"],
+	[["ESC", "P"], "PAUSE"],
 ]
+const KEYS_WIDTH := 128.0
 
 var _button: PixelButton
 
@@ -46,28 +47,32 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _build() -> void:
-	var column := UiStyle.centered_panel(self, 320)
-	column.add_theme_constant_override(&"separation", 8)
-	column.add_child(UiStyle.label("HOW TO PLAY", 14, UiStyle.ACCENT))
+	var column := UiStyle.centered_panel(self, 300, "HOW TO PLAY")
+	column.add_theme_constant_override(&"separation", 4)
 
-	var grid := GridContainer.new()
-	grid.columns = 2
-	grid.add_theme_constant_override(&"h_separation", 16)
-	grid.add_theme_constant_override(&"v_separation", 4)
-	grid.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	column.add_child(grid)
-	for row in ROWS:
-		var key := UiStyle.label(row[0], 8, UiStyle.ACCENT, HORIZONTAL_ALIGNMENT_RIGHT)
-		key.custom_minimum_size = Vector2(110, 0)
-		grid.add_child(key)
-		var action := UiStyle.label(row[1], 8, UiStyle.BORDER, HORIZONTAL_ALIGNMENT_LEFT)
-		action.custom_minimum_size = Vector2(150, 0)
-		grid.add_child(action)
+	for row_data in ROWS:
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override(&"separation", 8)
+		column.add_child(row)
+		var keys := HBoxContainer.new()
+		keys.alignment = BoxContainer.ALIGNMENT_END
+		keys.add_theme_constant_override(&"separation", 2)
+		keys.custom_minimum_size = Vector2(KEYS_WIDTH, 0)
+		row.add_child(keys)
+		for key in row_data[0]:
+			keys.add_child(UiStyle.key_cap(tr(key)))
+		var action := UiStyle.label(row_data[1], UiStyle.FONT_SMALL, UiStyle.TEXT, HORIZONTAL_ALIGNMENT_LEFT)
+		action.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		row.add_child(action)
 
-	var goal := UiStyle.label("SURVIVE THE WAVES. PICK AN UPGRADE EACH WAVE.\nEVERY 5 WAVES THE SHOP OPENS.", 7, UiStyle.MUTED)
+	column.add_child(UiStyle.spacer(2))
+	column.add_child(UiStyle.separator())
+	var goal := UiStyle.label("SURVIVE THE WAVES. PICK AN UPGRADE EACH WAVE.\nEVERY 5 WAVES THE SHOP OPENS.", UiStyle.FONT_SMALL, UiStyle.MUTED)
+	goal.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	goal.custom_minimum_size = Vector2(276, 0)
 	column.add_child(goal)
 
-	_button = UiStyle.button("PLAY")
+	_button = UiStyle.button("PLAY", UiStyle.Variant.PRIMARY)
 	_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_button.pressed.connect(close)
 	column.add_child(_button)

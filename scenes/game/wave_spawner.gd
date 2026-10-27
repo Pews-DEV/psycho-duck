@@ -52,6 +52,9 @@ signal boss_spawned(boss: Enemy)
 
 var wave := 0
 var alive := 0
+## Inimigos da onda atual (contando os drones invocados) e quantos já morreram (HUD).
+var wave_total := 0
+var wave_killed := 0
 var player: Player
 var entities: Node2D
 
@@ -76,6 +79,8 @@ func elite_chance_for(number: int) -> float:
 func start_wave(number: int) -> void:
 	wave = number
 	_queue = _build_queue(number)
+	wave_total = _queue.size()
+	wave_killed = 0
 	_spawning = true
 	_spawn_loop()
 
@@ -170,12 +175,14 @@ func spawn_minion(data: EnemyData, at: Vector2) -> Enemy:
 	enemy.position = at
 	enemy.died.connect(_on_enemy_died)
 	alive += 1
+	wave_total += 1
 	entities.add_child.call_deferred(enemy)
 	return enemy
 
 
 func _on_enemy_died(_enemy: Enemy) -> void:
 	alive -= 1
+	wave_killed += 1
 	_check_cleared()
 
 

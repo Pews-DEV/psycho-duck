@@ -41,9 +41,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _build() -> void:
-	var column := UiStyle.centered_panel(self, 360)
-	column.add_theme_constant_override(&"separation", 2)
-	column.add_child(UiStyle.label("CREDITS", 14, UiStyle.ACCENT))
+	var column := UiStyle.centered_panel(self, 340, "CREDITS")
+	column.add_theme_constant_override(&"separation", 4)
 
 	var logo_row := HBoxContainer.new()
 	logo_row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -53,23 +52,33 @@ func _build() -> void:
 	logo.texture = LOGO
 	logo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	logo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	logo.custom_minimum_size = Vector2(56, 56)
+	logo.custom_minimum_size = Vector2(48, 48)
 	# O logo não é pixel art: filtro suave para reduzir sem serrilhar.
 	logo.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	logo_row.add_child(logo)
 	var by := VBoxContainer.new()
 	by.alignment = BoxContainer.ALIGNMENT_CENTER
+	by.add_theme_constant_override(&"separation", 0)
 	logo_row.add_child(by)
-	by.add_child(UiStyle.label("A GAME BY", 7, UiStyle.MUTED, HORIZONTAL_ALIGNMENT_LEFT))
-	by.add_child(UiStyle.label("BRIBA STUDIO", 12, UiStyle.BORDER, HORIZONTAL_ALIGNMENT_LEFT))
+	by.add_child(UiStyle.label("A GAME BY", UiStyle.FONT_SMALL, UiStyle.MUTED, HORIZONTAL_ALIGNMENT_LEFT))
+	var studio := UiStyle.label("BRIBA STUDIO", UiStyle.FONT_LARGE, UiStyle.TEXT, HORIZONTAL_ALIGNMENT_LEFT)
+	studio.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+	by.add_child(studio)
 
+	column.add_child(UiStyle.separator())
 	for section in SECTIONS:
-		column.add_child(UiStyle.label(section[0], 7, UiStyle.ACCENT))
-		var value := UiStyle.label(section[1], 7, UiStyle.BORDER)
+		var block := VBoxContainer.new()
+		block.add_theme_constant_override(&"separation", -1)
+		column.add_child(block)
+		block.add_child(UiStyle.label(section[0], UiStyle.FONT_SMALL, UiStyle.ACCENT))
+		var value := UiStyle.label(section[1], UiStyle.FONT_SMALL, UiStyle.TEXT)
 		value.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
-		column.add_child(value)
+		value.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		value.custom_minimum_size = Vector2(316, 0)
+		block.add_child(value)
 
-	_back = UiStyle.button("BACK")
+	column.add_child(UiStyle.spacer(2))
+	_back = UiStyle.button("BACK", UiStyle.Variant.PRIMARY)
 	_back.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_back.pressed.connect(close)
 	column.add_child(_back)

@@ -48,6 +48,13 @@ func burst_interval() -> float:
 	return interval / (1.0 + fire_rate_bonus / 100.0)
 
 
+## Carga da próxima rajada, de 0 a 1 (HUD).
+func charge() -> float:
+	if not _built:
+		return 0.0
+	return clampf(1.0 - _cooldown / burst_interval(), 0.0, 1.0)
+
+
 func apply_upgrade(upgrade: UpgradeData, rarity: UpgradeData.Rarity) -> void:
 	var value := upgrade.value_for(rarity)
 	match upgrade.stat:
